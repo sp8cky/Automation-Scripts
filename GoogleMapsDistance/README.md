@@ -39,7 +39,6 @@ You can simply change the column headings and customize them in the script.
 Clone the repository and navigate into the directory
 ```
 git clone https://github.com/sp8cky/Automation-Scripts/GoogleMapsDistance && cd Automation-Scripts/GoogleMapsDistance
-
 ```
 Install dependencies
 ```
