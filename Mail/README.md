@@ -17,14 +17,18 @@ This PowerShell script automates the sending of emails with attachments based on
 - Finished
 
 ## Installation and usage
-### Anforderungen
+### Requirements
 - **PowerShell**: This script requires PowerShell 5.1 or higher.
 
-#### Excel Datei
+#### Excel file
 The excel file need two columns (every entry one row):
 - Name: The name of the recipient.
 - Email: The recipient's email address.
 
+| Name  | Email  |
+| ---   |  --- |
+| john  | john.doe@test.com |
+| max  | max@gmail.com |
 
 Clone the repository and navigate into the directory
 ```
@@ -36,7 +40,7 @@ pip install -r requirements.txt
 ```
 
 ### Call 
-Change the execution rights (see [https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.security/set-executionpolicy?view=powershell-7.4](here) for more information)
+Change the execution rights (see (here)[https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.security/set-executionpolicy?view=powershell-7.4] for more information)
 ```
 Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
 ``` 
