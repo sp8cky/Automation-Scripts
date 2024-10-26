@@ -4,8 +4,7 @@ This PowerShell script automates the sending of emails with attachments based on
 ## Table of contents
 1. [Implemented Features](#Implemented-Features)
 2. [Installation and usage](#installation-and-usage)
-3. [Contributing](#contributing)
-4. [Disclaimer](#disclaimer)
+3. [Disclaimer](#disclaimer)
 
 ## Implemented features
 - Reads the recipient information (name and e-mail address) from a specified Excel file.
@@ -40,7 +39,7 @@ pip install -r requirements.txt
 ```
 
 ### Call 
-Change the execution rights (see (here)[https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.security/set-executionpolicy?view=powershell-7.4] for more information)
+Change the execution rights (see [here](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.security/set-executionpolicy?view=powershell-7.4) for more information)
 ```
 Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
 ``` 
@@ -57,7 +56,7 @@ Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
 - MailSubject: (Optional) The subject of the email. “MAIL-TEST” by default.
 - MailText: (Optional) The text of the email. By default “Hello [name]!”.
 
-Example call:
+**Example call**:
 ``` 
 .\mail.ps1 -ExcelFile "C:\Users\<user>\Desktop\Names.xlsx" -FileDirectory "C:\Users\<user>\Desktop\Files" -SenderEmail "youremail@gmx.de" -SmtpServer "mail.gmx.net" -SmtpPort 587
 ```
