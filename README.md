@@ -17,6 +17,7 @@ git clone https://github.com/sp8cky/Automation-Scripts && cd Automation-Scripts
 ## Implemented Scripts
 For information about the respective scripts see their `README.md` files.
 - [Mail automation](Mail/README.md)
+- [GoogleMaps distance automation](GoogleMapsDistance/README.md)
 
 ## Contributing
 Feedback and contributions are welcome! If you encounter any issues or have suggestions for improvements, feel free to open an issue or submit a pull request on GitHub.
