@@ -1,5 +1,0 @@
-# Check if module is installed
-if (-not (Get-Module -ListAvailable -Name ImportExcel)) {
-    Write-Host "Installing ImportExcel module..."
-    Install-Module -Name ImportExcel -Scope CurrentUser -Force
-}
