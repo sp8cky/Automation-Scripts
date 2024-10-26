@@ -1,31 +1,40 @@
-# Install Import-Excel Modul in PS
-
 # Change values
 param (
-    [string]$ExcelFile, # needs to be specified
-    [string]$FileDirectory, # needs to be specified
+    [string]$ExcelFile, # Required
+    [string]$FileDirectory, # Required
+    [string]$SenderEmail, # Required
+    [string]$SmtpServer, # Required
+    [int]$SmtpPort, # Required
     [string]$LogFile, # if empty logfile gets created in this path
-    [string]$UserName, # if emty its the email
-    [string]$SenderEmail, # needs to be specified
-    [string]$SmtpServer, # needs to be specified
-    [int]$SmtpPort, # needs to be specified
-    [string]$MailSubject = "Mail automation",
+    [string]$UserName, # if empty its the email
+    [string]$MailSubject = "Your file",
     [string]$MailText = "Hello [name]!"
 )
 
-if (-not $LogFile) { # If log file is not specified, create it in the current directory
-    $LogFile = Join-Path -Path (Get-Location) -ChildPath "log.txt"
+# check if ImportExcel module is installed
+if (-not (Get-Module -ListAvailable -Name ImportExcel)) {
+    Write-Host "Installing ImportExcel module..."
+    Install-Module -Name ImportExcel -Scope CurrentUser -Force
 }
 
-if (-not $userName) { # If user name is not specified, use the sender email
-    $userName = $senderEmail
+if (-not $UserName) { # If user name is not specified, use the sender email
+    $UserName = $SenderEmail
 }
 
-# example call:
-# .\mailParams.ps1 -ExcelFile "C:\Users\julia\Desktop\Names.xlsx" -FileDirectory "C:\Users\julia\Desktop\Files" -SenderEmail "jh4112000@gmx.de" -SmtpServer "mail.gmx.net" -SmtpPort 587
-
-# Log file
-'' | Out-File -FilePath $LogFile -Force
+# Initialize log file
+try {
+    if (-not $LogFile) {
+        # If no logfile path is specified, create log.txt in the current directory
+        $LogFile = Join-Path -Path (Get-Location) -ChildPath "log.txt"
+    } elseif (-not $LogFile.EndsWith(".txt")) {
+        # If just a directory is specified, create log.txt in that directory
+        $LogFile = Join-Path -Path $LogFile -ChildPath "log.txt"
+    }
+    '' | Out-File -FilePath $LogFile -Force # Initialize log file
+} catch {
+    Write-Host "Error initializing log file: $_"
+    exit 1
+}
 
 $successCount = 0
 $failureCount = 0
@@ -33,14 +42,14 @@ $failureCount = 0
 # Script start ########################################
 
 Write-Host "Script for mail automation started`n"
-Write-Host "Authentification loads`n"
+Write-Host "Authentication loads`n"
 
 # Load Excel file
-$excel = Import-Excel $excelFile
+$excel = Import-Excel $ExcelFile
 $rowCount = 0
 
-# SMTP-settings
-$smtpCredential = Get-Credential -Message "Enter your credentials" -UserName "$userName"
+# SMTP settings
+$smtpCredential = Get-Credential -Message "Enter your credentials" -UserName "$UserName"
 
 # Iterate over each row in the Excel file
 foreach ($row in $excel) {
@@ -52,36 +61,37 @@ foreach ($row in $excel) {
     if (-not $name -or -not $email) {
         continue
     }
-    $rowCount++ # Increase row count
+    $rowCount++
     
-    # Construct the file path
-    $filePath = Join-Path $fileDirectory "$name.pdf"
+    # Construct the file path pattern for the file (any extension)
+    $filePathPattern = Join-Path -Path $FileDirectory -ChildPath "$name.*"
+    $filePath = Get-ChildItem -Path $filePathPattern -File -ErrorAction SilentlyContinue | Select-Object -First 1
 
     # Check if the file exists
-    if (-not (Test-Path $filePath)) {
+    if (-not $filePath) {
         $failureCount++
-        "[FAILED] Email to $email failed: File not found for $name on $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')" | Out-File -Append -FilePath $logFile
-        continue # Skip to the next iteration
+        "[FAILED] Email to $email failed: File not found for $name on $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')" | Out-File -Append -FilePath $LogFile
+        continue
     }
 
     # Check if the SMTP server is reachable
-    if (-not (Test-Connection -ComputerName $smtpServer -Count 1 -Quiet)) {
+    if (-not (Test-Connection -ComputerName $SmtpServer -Count 1 -Quiet)) {
         $failureCount++
-        "[FAILED] Email to $email failed: Email server not reachable for $name on $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')" | Out-File -Append -FilePath $logFile
-        continue # Skip to the next iteration
+        "[FAILED] Email to $email failed: Email server not reachable for $name on $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')" | Out-File -Append -FilePath $LogFile
+        continue
     }
 
     # Construct the email message
-    $subject = $mailSubject
-    $attachment = $filePath
+    $subject = $MailSubject
+    $attachment = $filePath.FullName
     $message = @{
-        From       = $senderEmail
+        From       = $SenderEmail
         To         = $email
         Subject    = $subject
-        Body       = $mailText.Replace("[name]", $name)
+        Body       = $MailText.Replace("[name]", $name)
         Attachments = $attachment
-        SmtpServer = $smtpServer
-        Port       = $smtpPort
+        SmtpServer = $SmtpServer
+        Port       = $SmtpPort
         UseSSL     = $true
         Credential = $smtpCredential
     }
@@ -91,14 +101,13 @@ foreach ($row in $excel) {
         Send-MailMessage @message -ErrorAction Stop
         $successCount++
         # Log success
-        "[SUCCESS] Email to $email sent successfully for $name on $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')" | Out-File -Append -FilePath $logFile
+        "[SUCCESS] Email to $email sent successfully for $name on $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')" | Out-File -Append -FilePath $LogFile
     } catch { 
         $failureCount++
-        "[FAILED] Email to $email failed: Authentication error for $name on $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss'). Error: $_" | Out-File -Append -FilePath $logFile
+        "[FAILED] Email to $email failed: Authentication error for $name on $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss'). Error: $_" | Out-File -Append -FilePath $LogFile
     }
 }
 
 # Give feedback to the user
 Write-Host "`RESULT:`nSuccess: $successCount from $rowCount - Failed: $failureCount from $rowCount.`nSee log.txt for more information."
 Write-Host "`nScript has been completed."
-

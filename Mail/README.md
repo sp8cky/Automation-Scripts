@@ -7,8 +7,8 @@ This PowerShell script automates the sending of emails with attachments based on
 3. [Disclaimer](#disclaimer)
 
 ## Implemented features
-- Reads the recipient information (name and e-mail address) from a specified Excel file.
-- Sends e-mails with attached files from a specified directory.
+- Reads the recipient information (name and email address) from a specified Excel file.
+- Sends emails with attached files of all types from a specified directory.
 - Logs the sending status in a log file.
 - Supports user-defined SMTP server settings.
 
@@ -21,7 +21,7 @@ This PowerShell script automates the sending of emails with attachments based on
 
 #### Excel file
 The excel file need two columns (every entry one row):
-- Name: The name of the recipient.
+- Name: The name of the recipient -> **also the name of the file**
 - Email: The recipient's email address.
 
 | Name  | Email  |
@@ -35,7 +35,7 @@ git clone https://github.com/sp8cky/Automation-Scripts/Mail && cd Automation-Scr
 ```
 Install dependencies
 ```
-pip install -r requirements.txt
+Install-Module -Name ImportExcel -Scope CurrentUser
 ```
 
 ### Call 
@@ -43,9 +43,8 @@ Change the execution rights (see [here](https://learn.microsoft.com/en-us/powers
 ```
 Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
 ``` 
-``` 
-.\mail.ps1 -ExcelFile "<Path to excel file>" -FileDirectory "<Path to files>" -SenderEmail "<Sender email>" -SmtpServer "<SMTP-Server>" -SmtpPort <Port>
-``` 
+
+### Parameters
 - ExcelFile: (Required) The path to the Excel file containing the recipient information.
 - FileDirectory: (Required) The path to the directory in which the files to be attached are located.
 - SenderEmail: (Required) The e-mail address of the sender.
@@ -53,12 +52,26 @@ Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
 - SmtpPort: (Required) The port for the SMTP server.
 - UserName: (Optional) The user name for authentication. If not specified, it is set to SenderEmail.
 - LogFile: (Optional) The path to the log file. If not specified, the log file is created in the current script directory.
-- MailSubject: (Optional) The subject of the email. “MAIL-TEST” by default.
+- MailSubject: (Optional) The subject of the email. "Your file" by default.
 - MailText: (Optional) The text of the email. By default “Hello [name]!”.
 
+### Call
+**Call with required parameters**:
+``` 
+.\mail.ps1 -ExcelFile "<Path to excel file>" -FileDirectory "<Path to files>" -SenderEmail "<Sender email>" -SmtpServer "<SMTP-Server>" -SmtpPort <Port>
+``` 
 **Example call**:
 ``` 
 .\mail.ps1 -ExcelFile "C:\Users\<user>\Desktop\Names.xlsx" -FileDirectory "C:\Users\<user>\Desktop\Files" -SenderEmail "youremail@gmx.de" -SmtpServer "mail.gmx.net" -SmtpPort 587
+```
+
+**Call with all parameters**:
+``` 
+.\mail.ps1 -ExcelFile "<Path to excel file>" -FileDirectory "<Path to files>" -SenderEmail "<Sender email>" -SmtpServer "<SMTP-Server>" -SmtpPort <Port> -LogFile "<Path to log file directory> -UserName "<Username>" -MailSubject "<Subject>" -MailText "<MailText>"
+``` 
+**Example call**:
+``` 
+.\mail.ps1 -ExcelFile "C:\Users\<user>\Desktop\Names.xlsx" -FileDirectory "C:\Users\<user>\Desktop\Files" -SenderEmail "youremail@gmx.de" -SmtpServer "mail.gmx.net" -SmtpPort 587 -LogFile "C:\Users\<user>\Desktop" -UserName "John" -MailSubject "Your file is ready" -MailText "Hello, you can download your file now."
 ```
 
 ## Disclaimer
