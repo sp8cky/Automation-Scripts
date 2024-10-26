@@ -20,7 +20,7 @@ This PowerShell script automates the sending of emails with attachments based on
 - **PowerShell**: This script requires PowerShell 5.1 or higher.
 
 #### Excel file
-The excel file need two columns (every entry one row):
+The Excel file requires two columns with the headings "Name" and "Email", one entry per line:
 - Name: The name of the recipient -> **also the name of the file**
 - Email: The recipient's email address.
 
